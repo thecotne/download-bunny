@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "download-bunny",
+  "productName": "Download Bunny",
   "version": "0.1.0",
   "identifier": "com.thecotne.download-bunny",
   "build": {
@@ -12,9 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "download-bunny",
+        "title": "Download Bunny",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true
       }
     ],
     "security": {
