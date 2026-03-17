@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Compute tag
         id: tag
-        run: echo "value=nightly-${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
+        run: echo "value=nightly-$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
 
       - name: Create nightly release
         id: release
