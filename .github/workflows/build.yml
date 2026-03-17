@@ -117,7 +117,7 @@ jobs:
           tagName: ${{ needs.create-release.outputs.tag }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           prerelease: true
-          uploadUpdaterJson: ${{ github.event_name == 'push' }}
+          includeUpdaterJson: ${{ github.event_name == 'push' }}
 
       - uses: actions/upload-artifact@v7
         if: github.event_name == 'pull_request'
@@ -185,7 +185,7 @@ jobs:
           tagName: ${{ needs.create-release.outputs.tag }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           prerelease: true
-          uploadUpdaterJson: ${{ github.event_name == 'push' }}
+          includeUpdaterJson: ${{ github.event_name == 'push' }}
           updaterJsonPreferNsis: true
 
       - uses: actions/upload-artifact@v7
@@ -266,7 +266,7 @@ jobs:
           tagName: ${{ needs.create-release.outputs.tag }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           prerelease: true
-          uploadUpdaterJson: ${{ github.event_name == 'push' }}
+          includeUpdaterJson: ${{ github.event_name == 'push' }}
 
       - uses: actions/upload-artifact@v7
         if: github.event_name == 'pull_request'
