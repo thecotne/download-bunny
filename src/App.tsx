@@ -4,6 +4,8 @@ import { downloadDir } from "@tauri-apps/api/path";
 import { BaseDirectory, readTextFile, remove } from "@tauri-apps/plugin-fs";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { invoke } from "@tauri-apps/api/core";
+import { check, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
 import "./App.css";
 import { path } from "@tauri-apps/api";
 
@@ -46,6 +48,8 @@ function qtIncompat(value: string, set: Set<string>): boolean {
 
 function App() {
   const [version, setVersion] = useState("...");
+  const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
+  const [updating, setUpdating] = useState(false);
   const [url, setUrl] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formats, setFormats] = useState<Format[]>([]);
@@ -77,6 +81,24 @@ function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [showModal]);
+
+  useEffect(() => {
+    check().then((update) => {
+      if (update?.available) setPendingUpdate(update);
+    }).catch(() => {});
+  }, []);
+
+  async function installUpdate() {
+    if (!pendingUpdate) return;
+    setUpdating(true);
+    try {
+      await pendingUpdate.downloadAndInstall();
+      await relaunch();
+    } catch (err) {
+      appendLog(String(err));
+      setUpdating(false);
+    }
+  }
 
   async function openModal() {
     const trimmed = url.trim();
@@ -222,6 +244,14 @@ function App() {
           return <span className={cls}>released {days} days ago</span>;
         })()}
       </p>
+      {pendingUpdate && (
+        <p className="update-banner">
+          <button className="update-btn" onClick={installUpdate} disabled={updating}>
+            {updating ? "Updating…" : `Update available (${pendingUpdate.version}) — click to install`}
+          </button>
+        </p>
+      )}
+
       <form
         className="url-row"
         onSubmit={(e) => {

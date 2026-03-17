@@ -244,6 +244,24 @@ button {
 .badge.orange { background: rgba(230, 126, 34, 0.15); color: #c97a1e; }
 .badge.red    { background: rgba(192, 57, 43, 0.15);  color: #c0392b; }
 
+.update-banner {
+  margin: -0.25em 0 0.75em;
+  text-align: center;
+}
+
+.update-btn {
+  font-size: 0.8em;
+  padding: 0.3em 1em;
+  background: rgba(57, 108, 216, 0.1);
+  border-color: rgba(57, 108, 216, 0.4);
+  color: #396cd8;
+}
+
+.update-btn:hover {
+  background: rgba(57, 108, 216, 0.18);
+  border-color: #396cd8;
+}
+
 .log-panel {
   margin-top: 1em;
   border-radius: 8px;
@@ -311,6 +329,17 @@ button {
 
   .logs {
     background: #1a1a1a;
+  }
+
+  .update-btn {
+    background: rgba(100, 108, 255, 0.15);
+    border-color: rgba(100, 108, 255, 0.4);
+    color: #8b91ff;
+  }
+
+  .update-btn:hover {
+    background: rgba(100, 108, 255, 0.25);
+    border-color: #8b91ff;
   }
 
   .modal {

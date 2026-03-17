@@ -1,0 +1,5 @@
+[cargo]
+buildScripts.enable = true
+
+[procMacro.ignored]
+tauri-macros = ["generate_context"]
