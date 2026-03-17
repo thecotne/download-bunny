@@ -342,7 +342,6 @@ jobs:
           rustup toolchain install stable \
             --target aarch64-linux-android \
             --target armv7-linux-androideabi \
-            --target i686-linux-android \
             --target x86_64-linux-android \
             --profile minimal \
             --no-self-update
@@ -383,11 +382,25 @@ jobs:
           echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
-      - name: Install latest Android NDK
+      - name: Resolve latest Android NDK version
+        id: ndk-version
         run: |
           LATEST_NDK=$(sdkmanager --list 2>/dev/null | grep -oP '^\s+ndk;\K\S+' | sort -V | tail -1)
-          sdkmanager "ndk;$LATEST_NDK"
-          echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/$LATEST_NDK" >> $GITHUB_ENV
+          echo "version=$LATEST_NDK" >> $GITHUB_OUTPUT
+
+      - name: Cache Android NDK
+        id: ndk-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ steps.ndk-version.outputs.version }}
+          key: android-ndk-${{ steps.ndk-version.outputs.version }}
+
+      - name: Install Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager "ndk;${{ steps.ndk-version.outputs.version }}"
+
+      - name: Set NDK_HOME
+        run: echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ steps.ndk-version.outputs.version }}" >> $GITHUB_ENV
 
       - run: bun install
 
