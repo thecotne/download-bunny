@@ -54,6 +54,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: true
 
       - name: Install Rust stable
         run: |
@@ -66,15 +67,23 @@ jobs:
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - name: Cache Rust build artifacts
+      - name: Cache Cargo registry
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Rust target dir
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-rust-macos-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-macos-
             ${{ runner.os }}-rust-
 
       - run: bun install
@@ -152,6 +161,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: true
 
       - name: Install Rust stable
         shell: bash
@@ -164,15 +174,23 @@ jobs:
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - name: Cache Rust build artifacts
+      - name: Cache Cargo registry
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Rust target dir
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-rust-windows-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-windows-
             ${{ runner.os }}-rust-
 
       - run: bun install
@@ -221,6 +239,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: true
 
       - name: Install Rust stable
         run: |
@@ -232,15 +251,23 @@ jobs:
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - name: Cache Rust build artifacts
+      - name: Cache Cargo registry
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Rust target dir
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-rust-linux-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-linux-
             ${{ runner.os }}-rust-
 
       - name: Install system dependencies
@@ -308,6 +335,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: true
 
       - name: Install Rust stable
         run: |
@@ -322,15 +350,23 @@ jobs:
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - name: Cache Rust build artifacts
+      - name: Cache Cargo registry
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Rust target dir
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-rust-android-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-android-
             ${{ runner.os }}-rust-
 
       - uses: actions/setup-java@v5
@@ -414,6 +450,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: true
 
       - name: Install Rust stable
         run: |
@@ -427,15 +464,23 @@ jobs:
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - name: Cache Rust build artifacts
+      - name: Cache Cargo registry
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Rust target dir
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-rust-ios-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-ios-
             ${{ runner.os }}-rust-
 
       - run: bun install
