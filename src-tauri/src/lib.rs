@@ -18,7 +18,7 @@ fn set_file_comment(path: String, comment: String) {
     use windows::{
         core::{HSTRING, PROPVARIANT},
         Win32::{
-            System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_INPROC_SERVER, COINIT_APARTMENTTHREADED},
+            System::Com::{CoInitializeEx, COINIT_APARTMENTTHREADED},
             UI::Shell::PropertiesSystem::{
                 IPropertyStore, PSGetPropertyKeyFromName, PROPERTYKEY,
                 SHGetPropertyStoreFromParsingName, GPS_READWRITE,
@@ -38,11 +38,9 @@ fn set_file_comment(path: String, comment: String) {
         if PSGetPropertyKeyFromName(windows::core::w!("System.Comment"), &mut pkey).is_err() {
             return;
         }
-        let value = HSTRING::from(comment.as_str());
-        if let Ok(pv) = PROPVARIANT::try_from(&value) {
-            let _ = store.SetValue(&pkey, &pv);
-            let _ = store.Commit();
-        }
+        let pv = PROPVARIANT::from(comment.as_str());
+        let _ = store.SetValue(&pkey, &pv);
+        let _ = store.Commit();
     }
 }
 
