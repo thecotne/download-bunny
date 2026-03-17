@@ -2,7 +2,43 @@
 
 ![Download Bunny](./download-bunny.png)
 
+Download Bunny is a desktop app that lets you download videos from YouTube and hundreds of other websites. It is a graphical wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+
 ## Installation
+
+> **Note:** Download Bunny does not bundle `yt-dlp` or `ffmpeg`. You must install them separately and make sure they are available in your `PATH`.
+>
+> **yt-dlp**
+> ```bash
+> # macOS
+> brew install yt-dlp
+>
+> # Debian / Ubuntu
+> sudo apt install yt-dlp
+>
+> # Fedora / RHEL
+> sudo dnf install yt-dlp
+>
+> # Windows
+> winget install yt-dlp
+> ```
+> For other installation options see https://github.com/yt-dlp/yt-dlp#installation
+>
+> **ffmpeg**
+> ```bash
+> # macOS (Homebrew recommended — no official Apple Silicon builds)
+> brew install ffmpeg
+>
+> # Debian / Ubuntu
+> sudo apt install ffmpeg
+>
+> # Fedora / RHEL
+> sudo dnf install ffmpeg
+>
+> # Windows
+> winget install ffmpeg
+> ```
+> For other installation options see https://ffmpeg.org/download.html
 
 Download the latest stable release from the [Latest Release](https://github.com/thecotne/download-bunny/releases/latest) page, or pick a nightly build from [All Releases](https://github.com/thecotne/download-bunny/releases).
 
