@@ -67,7 +67,7 @@ jobs:
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
       - name: Cache Rust build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -165,7 +165,7 @@ jobs:
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
       - name: Cache Rust build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -233,7 +233,7 @@ jobs:
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
       - name: Cache Rust build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -323,7 +323,7 @@ jobs:
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
       - name: Cache Rust build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -428,7 +428,7 @@ jobs:
           echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
       - name: Cache Rust build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
