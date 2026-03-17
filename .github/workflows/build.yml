@@ -3,7 +3,6 @@ name: Build
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -67,15 +66,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: --target universal-apple-darwin
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          releaseName: ${{ github.ref_type == 'tag' && format('Download Bunny {0}', github.ref_name) || '' }}
-          releaseDraft: ${{ github.ref_type == 'tag' }}
-          prerelease: false
           tauriScript: bunx tauri
 
-      - name: Upload artifacts
-        if: ${{ github.ref_type != 'tag' }}
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-universal
           path: |
@@ -107,15 +100,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          releaseName: ${{ github.ref_type == 'tag' && format('Download Bunny {0}', github.ref_name) || '' }}
-          releaseDraft: ${{ github.ref_type == 'tag' }}
-          prerelease: false
           tauriScript: bunx tauri
 
-      - name: Upload artifacts
-        if: ${{ github.ref_type != 'tag' }}
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-x64
           path: |
@@ -160,15 +147,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          releaseName: ${{ github.ref_type == 'tag' && format('Download Bunny {0}', github.ref_name) || '' }}
-          releaseDraft: ${{ github.ref_type == 'tag' }}
-          prerelease: false
           tauriScript: bunx tauri
 
-      - name: Upload artifacts
-        if: ${{ github.ref_type != 'tag' }}
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-x64
           path: |
@@ -244,15 +225,6 @@ jobs:
           path: src-tauri/gen/android/app/build/outputs/bundle/universalRelease/*.aab
           if-no-files-found: warn
 
-      - name: Attach to release
-        if: ${{ github.ref_type == 'tag' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          files: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/*.apk
-            src-tauri/gen/android/app/build/outputs/bundle/universalRelease/*.aab
-
   build-ios:
     name: iOS
     runs-on: macos-latest
@@ -317,11 +289,27 @@ jobs:
           path: src-tauri/gen/apple/build/arm64/*.ipa
           if-no-files-found: warn
 
-      - name: Attach to release
-        if: ${{ github.ref_type == 'tag' && env.IOS_CERTIFICATE != '' }}
-        env:
-          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
-        uses: softprops/action-gh-release@v2
+  create-nightly:
+    name: Create Nightly Release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: [build-macos, build-windows, build-linux, build-android, build-ios]
+    permissions:
+      contents: write
+    steps:
+      - name: Compute short SHA
+        id: sha
+        run: echo "short=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
+
+      - uses: actions/download-artifact@v4
         with:
-          draft: true
-          files: src-tauri/gen/apple/build/arm64/*.ipa
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly-${{ steps.sha.outputs.short }}
+          name: Nightly ${{ steps.sha.outputs.short }}
+          prerelease: true
+          make_latest: false
+          files: artifacts/*
