@@ -25,13 +25,16 @@ jobs:
         id: tag
         run: echo "value=nightly-${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
 
-      - uses: softprops/action-gh-release@v2
+      - name: Create nightly release
         id: release
-        with:
-          tag_name: ${{ steps.tag.outputs.value }}
-          name: Nightly ${{ steps.tag.outputs.value }}
-          prerelease: true
-          make_latest: false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.tag.outputs.value }}" \
+            --title "Nightly ${{ steps.tag.outputs.value }}" \
+            --prerelease
+          RELEASE_ID=$(gh api "/repos/$GITHUB_REPOSITORY/releases/tags/${{ steps.tag.outputs.value }}" --jq '.id')
+          echo "id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
   build-macos:
     name: macOS (universal)
@@ -48,13 +51,27 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable \
+            --target aarch64-apple-darwin \
+            --target x86_64-apple-darwin \
+            --profile minimal \
+            --no-self-update
+          rustup default stable
+          echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
+          echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - uses: swatinem/rust-cache@v2
+      - name: Cache Rust build artifacts
+        uses: actions/cache@v4
         with:
-          workspaces: src-tauri
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
 
       - run: bun install
 
@@ -132,13 +149,27 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-pc-windows-msvc
+      - name: Install Rust stable
+        shell: bash
+        run: |
+          rustup toolchain install stable \
+            --target x86_64-pc-windows-msvc \
+            --profile minimal \
+            --no-self-update
+          rustup default stable
+          echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
+          echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - uses: swatinem/rust-cache@v2
+      - name: Cache Rust build artifacts
+        uses: actions/cache@v4
         with:
-          workspaces: src-tauri
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
 
       - run: bun install
 
@@ -187,13 +218,26 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-unknown-linux-gnu
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable \
+            --target x86_64-unknown-linux-gnu \
+            --profile minimal \
+            --no-self-update
+          rustup default stable
+          echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
+          echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - uses: swatinem/rust-cache@v2
+      - name: Cache Rust build artifacts
+        uses: actions/cache@v4
         with:
-          workspaces: src-tauri
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
 
       - name: Install system dependencies
         run: |
@@ -261,24 +305,42 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: >-
-            aarch64-linux-android,
-            armv7-linux-androideabi,
-            i686-linux-android,
-            x86_64-linux-android
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable \
+            --target aarch64-linux-android \
+            --target armv7-linux-androideabi \
+            --target i686-linux-android \
+            --target x86_64-linux-android \
+            --profile minimal \
+            --no-self-update
+          rustup default stable
+          echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
+          echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - uses: swatinem/rust-cache@v2
+      - name: Cache Rust build artifacts
+        uses: actions/cache@v4
         with:
-          workspaces: src-tauri
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
 
       - uses: actions/setup-java@v5
         with:
           java-version: "17"
           distribution: temurin
 
-      - uses: android-actions/setup-android@v3
+      - name: Setup Android SDK
+        run: |
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "tools" "platform-tools"
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
       - name: Install Android NDK r27
         run: sdkmanager "ndk;27.0.12077973"
@@ -306,13 +368,15 @@ jobs:
             --target armv7 \
             --target x86_64
 
-      - uses: softprops/action-gh-release@v2
+      - name: Upload release assets
         if: github.event_name == 'push'
-        with:
-          tag_name: ${{ needs.create-release.outputs.tag }}
-          files: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/*.apk
-            src-tauri/gen/android/app/build/outputs/bundle/universalRelease/*.aab
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.create-release.outputs.tag }}" \
+            src-tauri/gen/android/app/build/outputs/apk/universal/release/*.apk \
+            src-tauri/gen/android/app/build/outputs/bundle/universalRelease/*.aab \
+            --clobber
 
       - uses: actions/upload-artifact@v7
         if: github.event_name == 'pull_request'
@@ -343,16 +407,28 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: >-
-            aarch64-apple-ios,
-            aarch64-apple-ios-sim,
-            x86_64-apple-ios
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable \
+            --target aarch64-apple-ios \
+            --target aarch64-apple-ios-sim \
+            --target x86_64-apple-ios \
+            --profile minimal \
+            --no-self-update
+          rustup default stable
+          echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
+          echo "CARGO_TERM_COLOR=always" >> $GITHUB_ENV
 
-      - uses: swatinem/rust-cache@v2
+      - name: Cache Rust build artifacts
+        uses: actions/cache@v4
         with:
-          workspaces: src-tauri
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
 
       - run: bun install
 
@@ -391,11 +467,14 @@ jobs:
         if: ${{ env.IOS_CERTIFICATE == '' }}
         run: bunx tauri ios build --target aarch64-sim
 
-      - uses: softprops/action-gh-release@v2
+      - name: Upload release assets
         if: github.event_name == 'push'
-        with:
-          tag_name: ${{ needs.create-release.outputs.tag }}
-          files: src-tauri/gen/apple/build/arm64/*.ipa
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.create-release.outputs.tag }}" \
+            src-tauri/gen/apple/build/arm64/*.ipa \
+            --clobber
 
       - uses: actions/upload-artifact@v7
         if: github.event_name == 'pull_request'
