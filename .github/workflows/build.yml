@@ -297,12 +297,13 @@ jobs:
       - name: Build iOS (signed)
         if: ${{ env.IOS_CERTIFICATE != '' }}
         env:
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
           IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
         run: bunx tauri ios build --export-method app-store-connect
 
-      - name: Build iOS (simulator fallback)
+      - name: Build iOS (simulator)
         if: ${{ env.IOS_CERTIFICATE == '' }}
-        run: bunx tauri ios build --target aarch64-apple-ios-sim --no-signing
+        run: bunx tauri ios build --target aarch64-sim
 
       - uses: actions/upload-artifact@v4
         with:
@@ -312,6 +313,8 @@ jobs:
 
       - name: Attach to release
         if: ${{ github.ref_type == 'tag' && env.IOS_CERTIFICATE != '' }}
+        env:
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
         uses: softprops/action-gh-release@v2
         with:
           draft: true
