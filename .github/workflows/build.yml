@@ -31,6 +31,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ steps.tag.outputs.value }}" \
+            --repo "$GITHUB_REPOSITORY" \
             --title "Nightly ${{ steps.tag.outputs.value }}" \
             --prerelease
           RELEASE_ID=$(gh api "/repos/$GITHUB_REPOSITORY/releases/tags/${{ steps.tag.outputs.value }}" --jq '.id')
