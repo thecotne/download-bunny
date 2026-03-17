@@ -476,9 +476,10 @@ jobs:
         run: bunx tauri ios build --target aarch64-sim
 
       - name: Upload release assets
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && env.IOS_CERTIFICATE != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
         run: |
           gh release upload "${{ needs.create-release.outputs.tag }}" \
             src-tauri/gen/apple/build/arm64/*.ipa \
