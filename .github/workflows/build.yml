@@ -341,10 +341,14 @@ jobs:
           yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
           "$SDKMANAGER" "tools" "platform-tools"
           echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
-      - name: Install Android NDK r27
-        run: sdkmanager "ndk;27.0.12077973"
+      - name: Install latest Android NDK
+        run: |
+          LATEST_NDK=$(sdkmanager --list 2>/dev/null | grep -oP '^\s+ndk;\K\S+' | sort -V | tail -1)
+          sdkmanager "ndk;$LATEST_NDK"
+          echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/$LATEST_NDK" >> $GITHUB_ENV
 
       - run: bun install
 
@@ -356,7 +360,7 @@ jobs:
 
       - name: Build Android
         env:
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.12077973
+          NDK_HOME: ${{ env.NDK_HOME }}
           KEYSTORE_PATH: ${{ secrets.ANDROID_KEYSTORE != '' && format('{0}/keystore.jks', env.RUNNER_TEMP) || '' }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
