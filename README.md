@@ -2,6 +2,8 @@
 
 ![Download Bunny](./download-bunny.png)
 
+> **Early Development:** Download Bunny is in early development. Expect bugs, missing features, and breaking changes.
+
 Download Bunny is a desktop app that lets you download videos from YouTube and hundreds of other websites. It is a graphical wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
 ## Installation
