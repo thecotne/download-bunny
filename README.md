@@ -1,6 +1,6 @@
 # Download Bunny
 
-![Download Bunny](./download-bunny.png)
+<p align="center"><img src="./download-bunny.png" alt="Download Bunny" width="400"/></p>
 
 > **Early Development:** Download Bunny is in early development. Expect bugs, missing features, and breaking changes.
 
